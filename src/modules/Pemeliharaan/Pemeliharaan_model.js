@@ -4,7 +4,7 @@ module.exports = {
   getDataAll: (limit, offset, keywords, sort) => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `SELECT @no:=@no+1 AS nomor, s.nopolisi_stnk, u.user_name, u.user_email, u.user_nomor,b.id_pemeliharaan ,b.status_pemeliharaan ,b.sisa_anggaran FROM pemeliharaan b JOIN user u ON b.id_user = u.id_user JOIN stnk s ON b.id_stnk = s.id_stnk JOIN (SELECT @no:=0) r WHERE s.nopolisi_stnk LIKE ? ORDER BY ${sort} LIMIT ? OFFSET ?`,
+        `SELECT @no:=@no+1 AS nomor, s.nopolisi_stnk, u.user_name, u.user_email, u.user_nomor,b.id_pemeliharaan ,b.status_pemeliharaan,b.tanggal_pemeliharaan ,b.sisa_anggaran FROM pemeliharaan b JOIN user u ON b.id_user = u.id_user JOIN stnk s ON b.id_stnk = s.id_stnk JOIN (SELECT @no:=0) r WHERE s.nopolisi_stnk LIKE ? ORDER BY ${sort} LIMIT ? OFFSET ?`,
         [keywords, limit, offset],
         (error, result) => {
           !error ? resolve(result) : reject(new Error(error))

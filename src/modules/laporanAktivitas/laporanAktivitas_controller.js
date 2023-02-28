@@ -1,7 +1,5 @@
 const helper = require('../../helpers')
 const laporanAktivitasModel = require('./laporanAktivitas_model')
-
-// ssss
 module.exports = {
   getAllLaporanAktivitas: async (req, res) => {
     try {

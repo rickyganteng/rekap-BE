@@ -4,38 +4,81 @@ const dataSTNKModel = require('./Pemeliharaan_model')
 module.exports = {
   getAllBensin: async (req, res) => {
     try {
-      let { page, limit, sort, keywords } = req.query
-      console.log('ahh', sort)
-      console.log('uhhh', req.query)
+      let { page, limit, sort, keywords, fromdate, todate } = req.query
 
-      limit = limit || '60'
+      limit = limit || '5'
       page = page || '1'
       keywords = keywords || '%'
-      sort = sort || 'nomor ASC'
+      sort = 'nomor ASC'
+      fromdate = fromdate || ''
+      todate = todate || ''
 
       page = parseInt(page)
       limit = parseInt(limit)
       const offset = page * limit - limit
+      if (fromdate === '' && todate === '') {
+        const totalData = await dataSTNKModel.getDataCount(keywords)
+        console.log('Total Data ' + totalData)
+        const totalPage = Math.ceil(totalData / limit)
+        console.log('Total Page ' + totalPage)
 
-      const totalData = await dataSTNKModel.getDataCount(keywords)
-      console.log('Total Data ' + totalData)
-      const totalPage = Math.ceil(totalData / limit)
-      console.log('Total Page ' + totalPage)
+        const pageInfo = {
+          page,
+          totalPage,
+          limit,
+          totalData
+        }
+        const result = await dataSTNKModel.getDataAll(
+          limit,
+          offset,
+          keywords,
+          sort
+        )
+        return helper.response(
+          res,
+          200,
+          'Succes Get All Data',
+          result,
+          pageInfo
+        )
+      } else {
+        const totalData = await laporanAktivitasModel.getDataCountTanggal(
+          limit,
+          offset,
+          fromdate,
+          todate,
+          sortCol,
+          sort,
+          keywords
+        )
+        // const totalDataLength = parseInt(totalData.length)
+        const totalDataNoLimit =
+          await laporanAktivitasModel.getDataCountTanggalNoLimit(
+            sortCol,
+            sort,
+            keywords,
+            fromdate,
+            todate
+          )
+        const totalDataTotal =
+          await laporanAktivitasModel.getDataCountTanggalTotal(
+            fromdate,
+            todate,
+            sortCol,
+            keywords
+          )
 
-      const pageInfo = {
-        page,
-        totalPage,
-        limit,
-        totalData
+        const totalPage = Math.ceil(totalDataTotal.length / limit)
+        const pageInfo = { page, totalPage, limit, totalData, totalDataNoLimit }
+        // const result = await laporanAktivitasModel.getDataAllLaporanAktivitas(limit, offset, keywords, sort)
+        return helper.response(
+          res,
+          200,
+          'Succes Get User Data',
+          totalData,
+          pageInfo
+        )
       }
-      const result = await dataSTNKModel.getDataAll(
-        limit,
-        offset,
-        keywords,
-        sort
-      )
-      console.log('ini resssult', keywords)
-      return helper.response(res, 200, 'Succes Get All Data', result, pageInfo)
     } catch (error) {
       //   return helper.response(res, 400, 'Bad Request', error)
       console.log(error)
